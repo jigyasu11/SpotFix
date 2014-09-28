@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SpotFix</string>
+    <string name="app_name">SpotFix!</string>
+    <string name="big_app_name">SpotFix! Clean your city</string>
     <string name="title_activity_maps">Map</string>
     <string name="facebook_app_id">1454387834851061</string>
+    <string name="get_started">To get started, log in using Facebook</string>
 </resources>
