@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <fragment android:name="com.spotfix.HomeFragment"
+    <fragment android:name="com.spotfix.MainActivityFragment"
         android:id="@+id/homeFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

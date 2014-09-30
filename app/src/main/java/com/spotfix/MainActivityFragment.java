@@ -10,9 +10,9 @@ import android.view.ViewGroup;
 /**
  * Created by rarya on 9/27/14.
  */
-public class HomeFragment extends Fragment {
+public class MainActivityFragment extends Fragment {
 
-    private static final String TAG = HomeFragment.class.getSimpleName();
+    private static final String TAG = MainActivityFragment.class.getSimpleName();
     @Override
     public View onCreateView(LayoutInflater inflater,
                              ViewGroup container,

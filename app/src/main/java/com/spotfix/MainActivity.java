@@ -10,19 +10,30 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.facebook.Request;
 import com.facebook.Session;
 import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
+import com.facebook.model.GraphUser;
 import com.google.gson.Gson;
 import com.spotfix.custom_list_view.CustomListAdapter;
+import com.spotfix.dao.DoPost;
 import com.spotfix.dao.HttpCalls;
-import com.spotfix.models.SpotFixFeed;
+import com.spotfix.dao.PostTypeEnum;
+import com.spotfix.models.PostUserDetails;
+import com.spotfix.models.SpotFixApproved;
+import com.spotfix.models.UserId;
 
 import org.json.JSONArray;
 
@@ -35,10 +46,12 @@ import java.util.List;
 /*
     Display feeds for user
  */
-public class Home extends FragmentActivity {
+public class MainActivity extends FragmentActivity implements AsyncResponse {
 
-    private static final String TAG = Home.class.getSimpleName();
-    private List<SpotFixFeed> spotFixFeeds = new ArrayList<SpotFixFeed>();
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    public static final String MESSAGE_FOR_SPOT_FIX_DETAIL = "com.spotfix.MainActivity.item";
+    private List<SpotFixApproved> spotFixFeeds = new ArrayList<SpotFixApproved>();
     private ListView listView;
     private CustomListAdapter adapter;
     private ProgressDialog pDialog;
@@ -52,13 +65,15 @@ public class Home extends FragmentActivity {
 
     private boolean isResumed = false;
     private boolean feedLoaded = false;
+    private String firstName;
+    private String lastName;
+    private String id;
 
     private UiLifecycleHelper uiHelper;
     private Session.StatusCallback callback =
             new Session.StatusCallback() {
                 @Override
-                public void call(Session session,
-                                 SessionState state, Exception exception) {
+                public void call(Session session, SessionState state, Exception exception) {
                     onSessionStateChange(session, state, exception);
                 }
             };
@@ -84,6 +99,17 @@ public class Home extends FragmentActivity {
         listView.setAdapter(adapter);
 
         pDialog = new ProgressDialog(this);
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                SpotFixApproved sf = (SpotFixApproved) adapter.getItem(position);
+
+                Intent intent = new Intent(getBaseContext(), GetSpotFixDetailActivity.class);
+                intent.putExtra(MESSAGE_FOR_SPOT_FIX_DETAIL, sf.toJsonString());
+                startActivity(intent);
+            }
+        });
     }
 
     private void showFragment(int fragmentIndex, boolean addToBackStack) {
@@ -104,8 +130,28 @@ public class Home extends FragmentActivity {
 
     private void onSessionStateChange(Session session, SessionState state, Exception exception) {
         // Only make changes if the activity is visible
-        Log.i(TAG, "session state changed flag:" + isResumed);
+        Log.i(TAG, "session state changed flag:" + isResumed + String.format(" Session opened %b", session.isOpened()));
         if (isResumed) {
+            if (session.isOpened()) {
+                // make request to the /me API
+                Request.newMeRequest(session, new Request.GraphUserCallback() {
+                    @Override
+                    public void onCompleted(GraphUser user, com.facebook.Response response) {
+                        Log.i(TAG, "I AM AT TOP " + user);
+                        if (user != null) {
+                            //TextView welcome = (TextView) findViewById(R.id.welcome);
+                            //welcome.setText("Hello " + user.getName() + "!");
+                            firstName = user.getFirstName();
+                            lastName = user.getLastName();
+                            id = user.getId();
+                            Log.i(TAG, "Name " + firstName + "," + lastName + "," + id);
+                            if (AppController.getInstance().getUserId() == null) {
+                                storeUserId();
+                            }
+                        }
+                    }
+                }).executeAsync();
+            }
             FragmentManager manager = getSupportFragmentManager();
             // Get the number of entries in the back stack
             int backStackSize = manager.getBackStackEntryCount();
@@ -147,9 +193,15 @@ public class Home extends FragmentActivity {
         }
     }
 
-//    private void createUserId() {
-//        JsonObjectRequest userIdRequest = new JsonObjectRequest(HttpCalls.base_url+HttpCalls.create_new_user,)
-//    }
+    private void storeUserId() {
+        // call backend to fetch user-id
+
+        String email = firstName + "," + lastName;
+        String mobile = id;
+        PostUserDetails details = new PostUserDetails(mobile, email);
+        DoPost doPost = new DoPost(PostTypeEnum.CREATE_USER, this);
+        doPost.execute(details.toJsonString());
+    }
 
     private void loadFeeds() {
         // Showing progress dialog before making http request
@@ -173,14 +225,14 @@ public class Home extends FragmentActivity {
                         for (int i = 0; i < response.length(); i++) {
                             try {
                                 Gson gson = new Gson();
-                                SpotFixFeed spotFix =  gson.fromJson(response.getString(i), SpotFixFeed.class);
+                                SpotFixApproved spotFix =  gson.fromJson(response.getString(i), SpotFixApproved.class);
+                                spotFix.setPictureId(HttpCalls.fetch_image_base_url+spotFix.getPictureId());
                                 spotFixFeeds.add(spotFix);
                             } catch (Exception e) {
                                 Log.e(TAG, "error in deserializing spot fix data", e);
                             }
 
                         }
-
                         // notifying list adapter about data changes
                         // so that it renders the list view with updated data
                         adapter.notifyDataSetChanged();
@@ -189,6 +241,7 @@ public class Home extends FragmentActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d(TAG, "Error occoured: " + error.getMessage());
+                Log.e(TAG, "Error occoured", error.getCause());
                 hidePDialog();
             }
         });
@@ -240,5 +293,57 @@ public class Home extends FragmentActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         uiHelper.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem propose = menu.findItem(R.id.menu_propose);
+        if (!Session.getActiveSession().isOpened()) {
+            propose.setVisible(false);
+        } else {
+            propose.setVisible(true);
+        }
+        return true;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
+        @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (Session.getActiveSession().isOpened()) {
+            // Handle presses on the action bar items
+            switch (item.getItemId()) {
+                case R.id.menu_home:
+                    return true;
+                case R.id.menu_propose:
+                    Intent intent = new Intent(getBaseContext(), MapsActivity.class);
+                    startActivity(intent);
+                    return true;
+                case R.id.user_feed:
+                    Intent intent2 = new Intent(getBaseContext(), UserFeedActivity.class);
+                    startActivity(intent2);
+                    return true;
+                default:
+                    return super.onOptionsItemSelected(item);
+            }
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    public void processFinish(String output, PostTypeEnum type) {
+        Log.i(TAG, "Output is " + output);
+        if (output != null) {
+            UserId user = new Gson().fromJson(output, UserId.class);
+            AppController.getInstance().setUserId(user.getUserId());
+            Log.i("USER ID: ", AppController.getInstance().getUserId());
+        }
     }
 }

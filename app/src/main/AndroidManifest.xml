@@ -8,22 +8,34 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+
+        <activity android:name=".MapsActivity"
+            android:label="Pick a location"/>
+
+        <activity android:name=".GetSpotFixDetailActivity"
+            android:label="Details!"/>
+
         <activity
-            android:name=".Home"
-            android:label="Spot Fix" >
+            android:name=".MainActivity"
+            android:label="Welcome to SpotFix" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <!-- Adding facebook fb_login activity...dirty way of doing it -->
         <activity android:name="com.facebook.LoginActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:label="@string/app_name" />
+
+
         <meta-data android:name="com.facebook.sdk.ApplicationId" android:value="@string/facebook_app_id"/>
 
+        <activity android:name=".ProposeSpotFixActivity"
+            android:label="Propose SpotFix !"/>
+
+        <activity android:name=".UserFeedActivity"
+            android:label="Activities around you !"/>
 
         <meta-data
             android:name="com.google.android.gms.version"

@@ -20,6 +20,9 @@ public class AppController extends Application {
     private RequestQueue mRequestQueue;
     private ImageLoader mImageLoader;
 
+    // User's user id after login
+    private String userId;
+
     private static AppController mInstance;
 
     @Override
@@ -27,6 +30,9 @@ public class AppController extends Application {
         super.onCreate();
         mInstance = this;
     }
+
+    public String getUserId() { return userId;}
+    public void setUserId(String userId) { this.userId = userId;}
 
     public static synchronized AppController getInstance() {
         return mInstance;

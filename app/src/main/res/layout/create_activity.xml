@@ -3,23 +3,32 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:clickable="true">
+    android:clickable="true"
+    android:background="@drawable/background">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="8pt"
+        android:text="Enter a brief description and attach a photo!"
+        android:id="@+id/description"
+        android:layout_alignParentTop="true" />
+
 
     <EditText
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="400dp"
         android:id="@+id/editText"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Enter Location"
-        android:id="@+id/locationButton"
-        android:layout_alignTop="@+id/saveButton"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:gravity="top|left"
+        android:textSize="10pt"
+        android:background="#000000"
+        android:textColor="#FFFFFF"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="50dp"
+        android:ems="15"
+        android:hint="@string/edit_text_hint"/>
 
     <Button
         android:layout_width="wrap_content"

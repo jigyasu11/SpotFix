@@ -5,5 +5,9 @@ package com.spotfix.models;
  */
 public class UserId {
 
-    String id;
+    private String id;
+
+    public String getUserId() {
+        return id;
+    }
 }

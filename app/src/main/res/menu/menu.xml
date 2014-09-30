@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/menu_home"
+        android:title="@string/feed"/>
+    <item android:id="@+id/menu_propose"
+        android:title="@string/propose_event" />
+    <item android:id="@+id/user_feed"
+        android:title="@string/user_feed" />
+    <item android:id="@+id/logout"
+        android:title="LogOut" />
+</menu>

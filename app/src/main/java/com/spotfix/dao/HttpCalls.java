@@ -20,30 +20,33 @@ import java.io.ByteArrayOutputStream;
  */
 public class HttpCalls {
 
-    public static final String base_url = "http://ec2-54-169-91-68.ap-southeast-1.compute.amazonaws.com:8080/tui";
+    public static final String base_url = "http://ec2-54-169-91-68.ap-southeast-1.compute.amazonaws.com/tui";
 
-    private static final String TAG = "Fetching data from backend";
+    public static final String fetch_image_base_url = "https://s3-ap-southeast-1.amazonaws.com/tui.pictures/";
+
+    private static final String TAG = HttpCalls.class.getSimpleName();
 
     public static final String create_new_user = "/users/";
 
-    public static final String get_feed = "/feed/";
+    public static final String get_feed = "/feed/?q=all";
+
+    public static final String submit_report = "/reports/";
+
+    public static final String post_picture = "/pictures/";
 
     public static final String get_spotfixes = "/spotfixes/";
 
+    public static final String join_spot_fix = "/spotfixes/participants/";
 
-    public String doPost(String end_point, String payload) {
-        try {
-            String url = this.base_url + end_point;
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httpPost = new HttpPost(url);
-            StringEntity entity = new StringEntity(payload, HTTP.UTF_8);
-            entity.setContentType("application/json");
-            httpPost.setEntity(entity);
-            return executeRequest(httpPost);
-        } catch (Exception e) {
-            Log.e(TAG, "Error in POST", e);
-        }
-        return null;
+
+    public String doPost(String end_point, String payload) throws Exception {
+        Log.i(TAG, "making a post call");
+        String url = this.base_url + end_point;
+        HttpPost httpPost = new HttpPost(url);
+        StringEntity entity = new StringEntity(payload, HTTP.UTF_8);
+        entity.setContentType("application/json");
+        httpPost.setEntity(entity);
+        return executeRequest(httpPost);
     }
 
 
@@ -60,12 +63,13 @@ public class HttpCalls {
         HttpClient httpclient = new DefaultHttpClient();
         HttpResponse response = httpclient.execute(request);
         StatusLine statusLine = response.getStatusLine();
+        Log.i(TAG, "RESPONSE IS " + statusLine.getStatusCode());
         if(statusLine.getStatusCode() == HttpStatus.SC_OK){
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             response.getEntity().writeTo(out);
             out.close();
             String responseString = out.toString();
-            response.getEntity().getContent().close();
+            Log.i(TAG,"response string is " + responseString);
             return responseString;
         } else {
             response.getEntity().getContent().close();

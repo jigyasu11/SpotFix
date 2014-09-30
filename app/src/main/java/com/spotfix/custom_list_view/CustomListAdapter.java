@@ -16,21 +16,22 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.spotfix.AppController;
 import com.spotfix.R;
-import com.spotfix.models.SpotFixFeed;
+import com.spotfix.models.SpotFixApproved;
 
 import java.util.List;
 
 public class CustomListAdapter extends BaseAdapter {
     private Activity activity;
     private LayoutInflater inflater;
-    private List<SpotFixFeed> spotFixFeeds;
+    private List<SpotFixApproved> spotFixFeeds;
     ImageLoader imageLoader = AppController.getInstance().getImageLoader();
 
-    public CustomListAdapter(Activity activity, List<SpotFixFeed> spotFixFeeds) {
+    public CustomListAdapter(Activity activity, List<SpotFixApproved> spotFixFeeds) {
         this.activity = activity;
         this.spotFixFeeds = spotFixFeeds;
     }
 
+    public List<SpotFixApproved> getSpotFixApprovedFeeds() {return spotFixFeeds;}
     @Override
     public int getCount() {
         return spotFixFeeds.size();
@@ -64,7 +65,7 @@ public class CustomListAdapter extends BaseAdapter {
         TextView rating = (TextView) convertView.findViewById(R.id.status);
 
         // getting spot fix data for the row
-        SpotFixFeed m = spotFixFeeds.get(position);
+        SpotFixApproved m = spotFixFeeds.get(position);
 
         // thumbnail image
         thumbNail.setImageUrl(m.getPictureId(), imageLoader);
