@@ -35,7 +35,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="spotfix_loc">Please mark spotfix location</string>
     <string name="feed">Home</string>
-    <string name="propose_event">Propose</string>
+    <string name="propose_event">Report</string>
     <string name="user_feed">Feed</string>
     <string name="edit_text_hint">Enter details of issue</string>
 </resources>
