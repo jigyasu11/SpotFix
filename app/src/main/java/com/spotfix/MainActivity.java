@@ -227,7 +227,10 @@ public class MainActivity extends FragmentActivity implements AsyncResponse {
                                 Gson gson = new Gson();
                                 SpotFixApproved spotFix =  gson.fromJson(response.getString(i), SpotFixApproved.class);
                                 spotFix.setPictureId(HttpCalls.fetch_image_base_url+spotFix.getPictureId());
-                                spotFixFeeds.add(spotFix);
+                                // omit spotfixes that have been completed
+                                if (!"COMPLETE".equals(spotFix.getState())) {
+                                    spotFixFeeds.add(spotFix);
+                                }
                             } catch (Exception e) {
                                 Log.e(TAG, "error in deserializing spot fix data", e);
                             }
