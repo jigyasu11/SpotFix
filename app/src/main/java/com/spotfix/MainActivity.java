@@ -64,7 +64,6 @@ public class MainActivity extends FragmentActivity implements AsyncResponse {
     private Fragment[] fragments = new Fragment[FRAGMENT_COUNT];
 
     private boolean isResumed = false;
-    private boolean feedLoaded = false;
     private String firstName;
     private String lastName;
     private String id;
@@ -163,10 +162,6 @@ public class MainActivity extends FragmentActivity implements AsyncResponse {
                 // If the session state is open:
                 // Show the authenticated fragment
                 showFragment(SELECTION, false);
-                if (!feedLoaded) {
-                    loadFeeds();
-                    feedLoaded = true;
-                }
             } else if (state.isClosed()) {
                 // If the session state is closed:
                 // Show the fb_login fragment
@@ -222,6 +217,9 @@ public class MainActivity extends FragmentActivity implements AsyncResponse {
                         hidePDialog();
 
                         // Parsing json
+                        if (spotFixFeeds!=null && spotFixFeeds.size() > 0) {
+                            spotFixFeeds.clear();
+                        }
                         for (int i = 0; i < response.length(); i++) {
                             try {
                                 Gson gson = new Gson();
@@ -254,7 +252,7 @@ public class MainActivity extends FragmentActivity implements AsyncResponse {
     private void hidePDialog() {
         if (pDialog != null) {
             pDialog.dismiss();
-            pDialog = null;
+           // pDialog = null;
         }
     }
 
@@ -265,7 +263,6 @@ public class MainActivity extends FragmentActivity implements AsyncResponse {
         Log.i(TAG, "on destroy called");
         uiHelper.onDestroy();
         Session.getActiveSession().close();
-        feedLoaded = false;
         hidePDialog();
     }
 
@@ -273,6 +270,7 @@ public class MainActivity extends FragmentActivity implements AsyncResponse {
     public void onResume() {
         super.onResume();
         uiHelper.onResume();
+        loadFeeds();
         isResumed = true;
     }
 
@@ -329,6 +327,10 @@ public class MainActivity extends FragmentActivity implements AsyncResponse {
                     Intent intent2 = new Intent(getBaseContext(), UserFeedActivity.class);
                     startActivity(intent2);
                     return true;
+                case R.id.logout:
+                    Session session = Session.getActiveSession();
+                    session.close();
+                    this.finish();
                 default:
                     return super.onOptionsItemSelected(item);
             }

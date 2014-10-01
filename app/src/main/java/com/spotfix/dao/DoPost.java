@@ -12,7 +12,6 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
-import org.apache.http.entity.mime.HttpMultipartMode;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -40,11 +39,11 @@ public class DoPost extends AsyncTask<String, Void, String> {
             case CREATE_USER:
                 return doPost(HttpCalls.base_url+HttpCalls.create_new_user, params[0]);
             case POST_REPORT:
-                return doPost(HttpCalls.base_url+HttpCalls.submit_report, params[0]);
+                return doPost(HttpCalls.base_url + HttpCalls.submit_report, params[0]);
             case POST_PICTURE:
                 return doMultiPartPost(HttpCalls.base_url + HttpCalls.post_picture, params[0]);
             case JOIN_SPOTFIX:
-                return doPost(HttpCalls.base_url+HttpCalls.join_spot_fix + "/" + params[0], params[1]);
+                return doPost(HttpCalls.base_url+HttpCalls.get_spotfixes + params[0] + "/participants/", params[1]);
             default:
                 return null;
         }
@@ -57,7 +56,7 @@ public class DoPost extends AsyncTask<String, Void, String> {
 
     private String doPost(String url, String payload) {
         try {
-            Log.i(TAG, "payload " + payload);
+            Log.i(TAG, "payload " + payload + " url is " + url);
             HttpCalls calls = new HttpCalls();
             return calls.doPost(url, payload);
         } catch (Exception e) {
@@ -75,8 +74,9 @@ public class DoPost extends AsyncTask<String, Void, String> {
             Log.i(TAG, "image file is " + fileName + " and url " + url);
 
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-            builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
+            //builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
             builder.addBinaryBody("file", file, ContentType.DEFAULT_BINARY, fileName);
+            //builder.addBinaryBody("file", file, ContentType.create("image/jpeg"), fileName);
             HttpEntity entity = builder.build();
 
             HttpPost httppost = new HttpPost(url);
@@ -87,18 +87,12 @@ public class DoPost extends AsyncTask<String, Void, String> {
                     HttpStatus.SC_OK);
             Log.i(TAG, String.format("checking %b",statusLine.getStatusCode() ==  HttpStatus.SC_OK));
             if(statusLine.getStatusCode() == HttpStatus.SC_OK){
-                Log.i(TAG,"uptop inside if");
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
-                Log.i(TAG,"uptop inside if 2");
                 response.getEntity().writeTo(out);
-                Log.i(TAG,"uptop inside if 3");
                 String responseString = out.toString();
-                Log.i(TAG,"uptop inside if 4");
 
                 out.close();
 
-                Log.i(TAG,"response string is " + responseString);
-                response.getEntity().getContent().close();
                 Log.i(TAG,"response string is " + responseString);
                 return responseString;
             } else {

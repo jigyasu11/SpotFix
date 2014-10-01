@@ -2,6 +2,7 @@ package com.spotfix;
 
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -17,6 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.Session;
 import com.google.gson.Gson;
 import com.spotfix.dao.DoPost;
 import com.spotfix.dao.PostTypeEnum;
@@ -32,6 +34,8 @@ public class ProposeSpotFixActivity extends Activity implements AsyncResponse {
     TextView description;
     Button save;
     Button uploadPhotos;
+
+    private ProgressDialog pDialog;
     private String pictureId;
 
     private static final String TAG  = ProposeSpotFixActivity.class.getSimpleName();
@@ -49,7 +53,7 @@ public class ProposeSpotFixActivity extends Activity implements AsyncResponse {
         description = (EditText) findViewById(R.id.editText);
         save = (Button) findViewById(R.id.saveButton);
         uploadPhotos = (Button) findViewById(R.id.uploadPhotoButton);
-
+        pDialog = new ProgressDialog(this);
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,6 +67,8 @@ public class ProposeSpotFixActivity extends Activity implements AsyncResponse {
         uploadPhotos.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                pDialog.setMessage("Uploading image...");
+                pDialog.show();
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -74,9 +80,16 @@ public class ProposeSpotFixActivity extends Activity implements AsyncResponse {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (selectedImagePath == null) {
+                    Toast toast = Toast.makeText(ProposeSpotFixActivity.this, "Please upload an image first...", Toast.LENGTH_LONG);
+                    toast.show();
+                    return;
+                }
+                pDialog.setMessage("Uploading report...");
+                pDialog.show();
                 // Make a post request to backend server
                 // create the spot fix feed object
-                Log.i(TAG, "received location" + latLong[0] + " " + latLong[1]);
+                Log.i(TAG, "received location" + latLong[0] + " " + latLong[1] + " user id " + AppController.getInstance().getUserId());
                 SpotLocation location = new SpotLocation(String.valueOf(latLong[0]), String.valueOf(latLong[1]));
                 PostReport report = new PostReport(pictureId, description.getText().toString(), location, AppController.getInstance().getUserId());
                 DoPost post = new DoPost(PostTypeEnum.POST_REPORT, ProposeSpotFixActivity.this);
@@ -147,6 +160,10 @@ public class ProposeSpotFixActivity extends Activity implements AsyncResponse {
                 Intent intent2 = new Intent(getBaseContext(), UserFeedActivity.class);
                 startActivity(intent2);
                 return true;
+            case R.id.logout:
+                Session session = Session.getActiveSession();
+                session.close();
+                this.finish();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -154,6 +171,7 @@ public class ProposeSpotFixActivity extends Activity implements AsyncResponse {
 
     @Override
     public void processFinish(String output, PostTypeEnum type) {
+        pDialog.hide();
         switch(type) {
             case POST_PICTURE:
                 Toast toast = Toast.makeText(this, "Image uploaded successfully", Toast.LENGTH_SHORT);
@@ -161,10 +179,17 @@ public class ProposeSpotFixActivity extends Activity implements AsyncResponse {
                 this.pictureId = new Gson().fromJson(output, PictureId.class).getPictureId();
                 Log.i(TAG, "Picture id is "+ pictureId);
                 break;
+            case CREATE_USER:
+                break;
             case POST_REPORT:
                 toast = Toast.makeText(this, "Report uploaded successfully", Toast.LENGTH_SHORT);
                 toast.show();
+                //Close the activity after saving the form
+                ProposeSpotFixActivity.this.finish();
                 break;
+            case JOIN_SPOTFIX:
+                break;
+
             default:
                 break;
         }

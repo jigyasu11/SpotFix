@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.facebook.Session;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -69,7 +70,7 @@ public class MapsActivity extends FragmentActivity implements
             public void onMapLongClick(LatLng latLng) {
                 userClickedLocation = latLng;
                 MarkerOptions options = new MarkerOptions().snippet(getString(R.string.app_name))
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_launcher))
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.flag))
                         .anchor(0.5f, 0.5f);
                 options.position(latLng);
                 map.clear();
@@ -387,6 +388,10 @@ public class MapsActivity extends FragmentActivity implements
                 Intent intent2 = new Intent(getBaseContext(), UserFeedActivity.class);
                 startActivity(intent2);
                 return true;
+            case R.id.logout:
+                Session session = Session.getActiveSession();
+                session.close();
+                this.finish();
             default:
                 return super.onOptionsItemSelected(item);
         }

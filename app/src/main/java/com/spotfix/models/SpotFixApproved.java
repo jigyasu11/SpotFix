@@ -16,6 +16,7 @@ public class SpotFixApproved {
     private String desc;
     private String state;
     private String userId;
+    private Long scheduledOn;
 
     private static final Gson gson = new Gson();
 
@@ -57,5 +58,9 @@ public class SpotFixApproved {
 
     public String toJsonString() {
         return gson.toJson(this);
+    }
+
+    public Long getScheduledOn() {
+        return scheduledOn;
     }
 }

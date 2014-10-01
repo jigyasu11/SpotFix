@@ -36,12 +36,9 @@ public class HttpCalls {
 
     public static final String get_spotfixes = "/spotfixes/";
 
-    public static final String join_spot_fix = "/spotfixes/participants/";
 
-
-    public String doPost(String end_point, String payload) throws Exception {
+    public String doPost(String url, String payload) throws Exception {
         Log.i(TAG, "making a post call");
-        String url = this.base_url + end_point;
         HttpPost httpPost = new HttpPost(url);
         StringEntity entity = new StringEntity(payload, HTTP.UTF_8);
         entity.setContentType("application/json");
