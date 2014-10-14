@@ -1,6 +1,10 @@
 SpotFix
 ========
 
+DEMO: https://github.com/jigyasu11/SpotFix_App_Demo
+
+Contributors: Richeek Arya and Nishant Shobhit
+
 Vision statement:
 empower people to take charge and solve problems in their neighborhood
 100 hours of community service
